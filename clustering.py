@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
 import io
+import sys
 import json
+import logging
 import pywikibot
 from pywikibot import page
 from sklearn import metrics
 from sklearn.cluster import AffinityPropagation
 from sklearn.datasets import load_svmlight_file
 from sklearn.metrics import pairwise
+
+LOG =  logging.getLogger(name=__name__)
+HANDLER = logging.StreamHandler(stream=sys.stdout)
+HANDLER.setFormatter(logging.Formatter('%(asctime)s    %(module)s    %(levelname)s    %(message)s'))
+HANDLER.setLevel(logging.DEBUG)
+LOG.addHandler(HANDLER)
+LOG.setLevel(logging.DEBUG)
 
 COMMONS = pywikibot.Site('commons', 'commons')
 FILE_NAMESPACE = 6
@@ -25,49 +34,47 @@ def categories(p, height=0):
             temp |= categories(cat,height-1)
         return temp
 
-
-def gathering(category_name, height=0):
-    category_dictionnary={}
+def gathering(category_name, height):
     category_set = set([])
     for file in page.Category(COMMONS, category_name).members(namespaces=FILE_NAMESPACE):
-        print "gathering "+file.title()
-        category_dictionnary[file.title()]=list(categories(file.title(), height))
-        category_set |= set(category_dictionnary[file.title()])
+        LOG.info(u'gathering %s', file.title())
+        if file.title() not in categories_tree:
+            categories_tree[file.title()]=list(categories(file.title(), height))
+        category_set |= set(categories_tree[file.title()])
     stringBuffer = []
-    category_dictionnary["files"]={}
-    category_dictionnary["categories"]={}
+    categories_tree["files"]={}
+    categories_tree["categories"]={}
     for j,file in enumerate(page.Category(COMMONS, category_name).members(namespaces=FILE_NAMESPACE)):
-        category_dictionnary["files"][j]=file.title()
+        categories_tree["files"][j]=file.title()
         stringBuffer.append("\n")
         stringBuffer.append(str(j))
         for i,category in enumerate(category_set):
-            category_dictionnary["categories"][i]=category.title()
+            categories_tree["categories"][i]=category.title()
             stringBuffer.append(" ")
             stringBuffer.append(str(i))
             stringBuffer.append(":")
-            stringBuffer.append(str(int(category in category_dictionnary[file.title()])))
-    print "Storing categories"
-    print category_dictionnary
+            stringBuffer.append(str(int(category in categories_tree[file.title()])))
+    LOG.info(u"Storing categories")
     with open("categories1.json", "w") as file:
-        data = json.dumps(category_dictionnary, indent=2)
+        data = json.dumps(categories_tree, indent=2)
         file.write(data)
-    print "Storing datapoints"
+    LOG.info(u"Storing datapoints")
     file = io.open(category_name+"-"+str(height)+".txt", mode="w", encoding="utf-8")
     file.write(u"".join(stringBuffer))
 
 
-def clustering(category_name):
-    X, labels_true = load_svmlight_file("Desks in portrait paintings-1.txt")
+def clustering(category_name, height):
+    X, labels_true = load_svmlight_file(category_name+"-"+str(height)+".txt")
     af = AffinityPropagation(preference=-50,affinity="euclidean").fit(X)
     cluster_centers_indices = af.cluster_centers_indices_
     labels = af.labels_
     n_clusters_ = len(cluster_centers_indices)
-    print('Estimated number of clusters: %d' % n_clusters_)
-    print("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
-    print("Completeness: %0.3f" % metrics.completeness_score(labels_true, labels))
-    print("V-measure: %0.3f" % metrics.v_measure_score(labels_true, labels))
-    print("Adjusted Rand Index: %0.3f" % metrics.adjusted_rand_score(labels_true, labels))
-    print("Adjusted Mutual Information: %0.3f" % metrics.adjusted_mutual_info_score(labels_true, labels))
+    LOG.info('Estimated number of clusters: %d' % n_clusters_)
+    LOG.info("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
+    LOG.info("Completeness: %0.3f" % metrics.completeness_score(labels_true, labels))
+    LOG.info("V-measure: %0.3f" % metrics.v_measure_score(labels_true, labels))
+    LOG.info("Adjusted Rand Index: %0.3f" % metrics.adjusted_rand_score(labels_true, labels))
+    LOG.info("Adjusted Mutual Information: %0.3f" % metrics.adjusted_mutual_info_score(labels_true, labels))
     # Reversing
     temp={}
     for i,label in enumerate(labels):
@@ -78,22 +85,36 @@ def clustering(category_name):
     clusters=[]
     for key in temp:
         if len(temp[key]) > 1: #Actual cluster
-            clusters.append([categories_tree["files"][str(i)] for i in temp[key]])
+            try:
+                clusters.append([categories_tree["files"][i] for i in temp[key]])
+            except KeyError as e:
+                LOG.error("unable to create cluster %s \n %s" % (key,temp[key]))
+                if "files" in categories_tree:
+                    for i in temp[key]:
+                        print categories_tree["files"]
+                        if i not in categories_tree["files"]:
+                            LOG.error("%d not found" % i)
     visualize(category_name, clusters)
 
 def visualize(category_name, clusters):
     test_page=page.Page(COMMONS, "User:Donna Nobot/clusterArtworks")
-    stringBuffer=["== [[:Category:"]
+    stringBuffer=[test_page.text]
+    stringBuffer.append("\n\n== [[:Category:")
     stringBuffer.append(category_name)
     stringBuffer.append("|")
     stringBuffer.append(category_name)
     stringBuffer.append("]] ==\n")
     for cluster in clusters:
-        stringBuffer.append("<gallery mode=\"packed\">")
+        stringBuffer.append("<gallery mode=\"packed\">\n")
         for file in cluster:
             stringBuffer.append(file)
             stringBuffer.append("\n")
         stringBuffer.append("</gallery>\n\n")
-    test_page.put(test_page.text.join(stringBuffer), "#clusterArworks")
+    test_page.put("".join(stringBuffer), "#clusterArworks")
 
-clustering("Desks in portrait paintings")
+
+def main(category_name, height=1):
+    gathering(category_name, height)
+    clustering(category_name, height)
+
+main(u"Paintings of sitting women reading indoors")

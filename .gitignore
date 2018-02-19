@@ -3,6 +3,7 @@ user-config.py
 apicache
 pywikibot.lwp
 throttle.ctrl
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
