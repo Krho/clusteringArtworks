@@ -36,7 +36,9 @@ def categories(p, height=0):
 
 def gathering(category_name, height):
     category_set = set([])
-    for file in page.Category(COMMONS, category_name).members(namespaces=FILE_NAMESPACE):
+    files = page.Category(COMMONS, category_name).members(namespaces=FILE_NAMESPACE)
+    LOG.info(u"Examining %s", category_name)
+    for file in files:
         LOG.info(u'gathering %s', file.title())
         if file.title() not in categories_tree:
             categories_tree[file.title()]=list(categories(file.title(), height))
@@ -94,7 +96,7 @@ def clustering(category_name, height):
                         print categories_tree["files"]
                         if i not in categories_tree["files"]:
                             LOG.error("%d not found" % i)
-    visualize(category_name, clusters)
+    return clusters
 
 def visualize(category_name, clusters):
     test_page=page.Page(COMMONS, "User:Donna Nobot/clusterArtworks")
@@ -113,8 +115,15 @@ def visualize(category_name, clusters):
     test_page.put("".join(stringBuffer), "#clusterArworks")
 
 
-def main(category_name, height=1):
+def main():
+    category_name = "Paintings of interiors of art galleries"
+    height=1
+    if len(sys.argv) > 1:
+        category_name = sys.argv[1]
     gathering(category_name, height)
-    clustering(category_name, height)
+    clusters = clustering(category_name, height)
+    visualize(category_name, clusters)
 
-main(u"Paintings of sitting women reading indoors")
+
+if __name__ == '__main__':
+    main()
