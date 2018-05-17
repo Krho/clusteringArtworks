@@ -122,7 +122,7 @@ def main():
         category_name = sys.argv[1]
     gathering(category_name, height)
     clusters = clustering(category_name, height)
-    visualize(category_name, clusters)
+    visualize(category_name,  clusters)
 
 
 if __name__ == '__main__':
