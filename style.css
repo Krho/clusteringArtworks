@@ -1,0 +1,40 @@
+body {
+	font-family: "Linux Libertine", "Georgia", serif;
+}
+
+.cluster {
+	display: flex;                   
+	align-items: flex-start;         
+	justify-content: space-between;
+}
+
+.cluster:after {
+	content: <hr>;
+}
+
+.dropHolder {
+    height: 190px;
+    width: 75%;
+}
+.wikidata {
+	height: 190px;
+	width: 20%;
+}
+textarea {
+	height: 140px;
+	width: 95%;
+	align-content: center;
+	border-color: darkCyan;
+	border-width: 1px;
+}
+.images {
+	height: 130px;
+	padding: 5px;
+}
+h1 {
+	font-size: 12pt;
+}
+h2 {
+	color: lightSlateGray;
+	font-size: 11pt;
+}
