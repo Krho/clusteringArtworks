@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+ <meta charset="UTF-8">
+<title>Clustering artwork images</title>
+<script type="text/javascript" src="../static/script.js"></script>
+<link rel="stylesheet" href="../static/style.css"/>
+</head>
+<body>
+
+<h1>Clustering artwork images</h1>
+<input value={{category}} type="text" />
+<input type="submit" value="Go !"/>
+
+
+
+<div class="cluster">
+	<div class="dropHolder" id="commonImages" ondrop="drop(event)" ondragover="allowDrop(event)">
+		<h2>Unclustered images</h2>
+	</div>
+	<div class="wikidata">
+		<h2>Common properties</h2>
+		<textarea></textarea>
+	</div>
+</div>
+
+{% for cluster in clusters %}
+<div class="cluster">
+	<div class="wikidata">
+		<h2>Cluster properties</h2>
+		<textarea></textarea>
+	</div>
+	<div class="dropHolder" ondrop="drop(event)" ondragover="allowDrop(event)">
+		<h2>Images</h2>
+		{% for image in cluster %}
+            <img draggable="true" ondragstart="drag(event)" id="img_{{ image.id }}" src={{ image.url }}>
+        {% endfor %}
+	</div>
+</div>
+{% endfor %}
+
+</body>
+</html>

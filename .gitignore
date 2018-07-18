@@ -7,6 +7,7 @@ throttle.ctrl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
+apicache-py2/
 *.py[cod]
 *$py.class
 

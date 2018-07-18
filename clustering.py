@@ -2,13 +2,21 @@
 import io
 import sys
 import json
+import os
+import uuid
 import logging
 import pywikibot
+import mwclient
 from pywikibot import page
 from sklearn import metrics
 from sklearn.cluster import AffinityPropagation
 from sklearn.datasets import load_svmlight_file
 from sklearn.metrics import pairwise
+from flask import (abort, Flask, render_template, request, Markup)
+from flask_mwoauth import MWOAuth
+
+app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 LOG =  logging.getLogger(name=__name__)
 HANDLER = logging.StreamHandler(stream=sys.stdout)
@@ -20,7 +28,11 @@ LOG.setLevel(logging.DEBUG)
 COMMONS = pywikibot.Site('commons', 'commons')
 FILE_NAMESPACE = 6
 
+IMAGE_HEIGHT = 120
+
 categories_tree = json.loads(open("categories1.json").read())
+commons = mwclient.Site('commons.wikimedia.org')
+
 
 def categories(p, height=0):
     if p not in categories_tree or "Parents" not in categories_tree[p]:
@@ -93,7 +105,6 @@ def clustering(category_name, height):
                 LOG.error("unable to create cluster %s \n %s" % (key,temp[key]))
                 if "files" in categories_tree:
                     for i in temp[key]:
-                        print categories_tree["files"]
                         if i not in categories_tree["files"]:
                             LOG.error("%d not found" % i)
     return clusters
@@ -114,16 +125,32 @@ def visualize(category_name, clusters):
         stringBuffer.append("</gallery>\n\n")
     test_page.put("".join(stringBuffer), "#clusterArworks")
 
+def imageOf(fileName):
+    file = pywikibot.FilePage(COMMONS, fileName)
+    return {'url':file.get_file_url(url_height=IMAGE_HEIGHT),'id':uuid.uuid4()}
+
+def imagesOf(clusters):
+    result = []
+    for cluster in clusters:
+        result.append([imageOf(fileName) for fileName in cluster])
+    return result
+
+@app.route("/")
+def show():
+    category_name = "Portrait_paintings_of_women_holding_flower_baskets"
+    height=1
+    gathering(category_name, height)
+    clusters = clustering(category_name, height)
+    images = imagesOf(clusters)
+    result = {"clusters":images}
+    result["category"]=category_name
+    return render_template('dragdrop.html', **result)
 
 def main():
-    category_name = "Paintings of interiors of art galleries"
+    category_name = "Portrait paintings of women holding flower baskets"
     height=1
     if len(sys.argv) > 1:
         category_name = sys.argv[1]
     gathering(category_name, height)
     clusters = clustering(category_name, height)
     visualize(category_name, clusters)
-
-
-if __name__ == '__main__':
-    main()
