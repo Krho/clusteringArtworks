@@ -14,11 +14,11 @@ body {
 
 .dropHolder {
     height: 190px;
-    width: 75%;
+    width: 69%;
 }
 .wikidata {
 	height: 190px;
-	width: 20%;
+	width: 30%;
 }
 textarea {
 	height: 140px;
@@ -27,6 +27,7 @@ textarea {
 	border-color: darkCyan;
 	border-width: 1px;
 }
+
 .images {
 	height: 130px;
 	padding: 5px;

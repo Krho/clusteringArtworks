@@ -13,34 +13,34 @@
 <input type="submit" value="Go !"/>
 
 <div class="cluster">
-		<div class="wikidata">
-			<h2>Cluster 1</h2>
-			<textarea></textarea>
-		</div>
-	<div class="dropHolder" ondrop="drop(event)" ondragover="allowDrop(event)">
-		<h2>Images</h2>
-	</div>
-</div>
-
-<div class="cluster">
-		<div class="wikidata">
-			<h2>Cluster 2</h2>
-			<textarea></textarea>
-		</div>
-	<div class="dropHolder" ondrop="drop(event)" ondragover="allowDrop(event)">
-		<h2>Images</h2>
-	</div>
-</div>
-
-<div class="cluster">
-		<div class="wikidata">
-			<h2>Others</h2>
-			<textarea></textarea>
-		</div>
-	<div class="dropHolder" ondrop="drop(event)" ondragover="allowDrop(event)">
-		<h2>Images</h2>
+	<div class="dropHolder" id="commonImages" ondrop="drop(event)" ondragover="allowDrop(event)">
+		<h2>Unclustered images</h2>
 		<img class="images" id="img1" src="img/cluster1a.jpg" draggable="true" ondragstart="drag(event)">
 		<img class="images" id="img2" src="img/cluster1b.jpg" draggable="true" ondragstart="drag(event)">
+	</div>
+		<div class="wikidata">
+			<h2>Common properties</h2>
+			<textarea></textarea>
+		</div>
+</div>
+
+<div class="cluster">
+	<div class="wikidata">
+			<h2>Cluster 1 properties</h2>
+			<textarea></textarea>
+		</div>
+	<div class="dropHolder" ondrop="drop(event)" ondragover="allowDrop(event)">
+		<h2>Images</h2>
+	</div>
+</div>
+
+<div class="cluster">
+		<div class="wikidata">
+			<h2>Cluster 2 properties</h2>
+			<textarea></textarea>
+		</div>
+	<div class="dropHolder" ondrop="drop(event)" ondragover="allowDrop(event)">
+		<h2>Images</h2>
 	</div>
 </div>
 
