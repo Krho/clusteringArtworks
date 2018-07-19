@@ -31,8 +31,7 @@ function harvest(){
 		elementData = {"text":null, "images":[]}
 		elements = document.getElementsByName(tag)
 		for (const element of elements){
-			console.log(element)
-			console.log(element.type)
+
 			if (element.type === "text"){
 				elementData["text"]=element.value
 			} else {
@@ -51,10 +50,10 @@ $(function() {
       $.getJSON($SCRIPT_ROOT + '/test', {
         common: $('input[name="common"]').val(),
         hidden: $('input[name="hidden"]').val(),
+        data: JSON.stringify(harvest())
       }, function(data) {
         $("#result").text(data.result);
       });
-      harvest()
       return false;
     });
 });

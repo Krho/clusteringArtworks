@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import io
+import os
+import ast
 import sys
 import json
-import os
 import uuid
 import logging
 import pywikibot
@@ -146,8 +147,9 @@ def imagesOf(clusters):
 @app.route('/test')
 def test():
     LOG.info("test")
-    common = request.args.get('hidden', 0, type=str)
-    LOG.info(common)
+    data = request.args.get('data', 0, type=str)
+    d = ast.literal_eval(data)
+    LOG.info(d[0]["images"])
     return render_template('dragdrop.html', **result)
 
 @app.route('/', methods=['GET', 'POST'])
