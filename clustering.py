@@ -33,6 +33,8 @@ IMAGE_HEIGHT = 120
 categories_tree = json.loads(open("categories1.json").read())
 commons = mwclient.Site('commons.wikimedia.org')
 
+idMap = {}
+result = {}
 
 def categories(p, height=0):
     if p not in categories_tree or "Parents" not in categories_tree[p]:
@@ -127,23 +129,39 @@ def visualize(category_name, clusters):
 
 def imageOf(fileName):
     file = pywikibot.FilePage(COMMONS, fileName)
-    return {'url':file.get_file_url(url_height=IMAGE_HEIGHT),'id':uuid.uuid4()}
+    uid = uuid.uuid4()
+    idMap[uid]=fileName
+    idMap[fileName]=uid
+    return {'url':file.get_file_url(url_height=IMAGE_HEIGHT),'id':uid}
 
 def imagesOf(clusters):
     result = []
-    for cluster in clusters:
-        result.append([imageOf(fileName) for fileName in cluster])
+    for i,cluster in enumerate(clusters):
+        uid = uuid.uuid4()
+        idMap[uid]=i
+        idMap[i]=uid
+        result.append({'id':uid,'images':[imageOf(fileName) for fileName in cluster]})
     return result
 
-@app.route("/")
+@app.route('/test')
+def test():
+    LOG.info("test")
+    common = request.args.get('hidden', 0, type=str)
+    LOG.info(common)
+    return render_template('dragdrop.html', **result)
+
+@app.route('/', methods=['GET', 'POST'])
 def show():
     category_name = "Portrait_paintings_of_women_holding_flower_baskets"
     height=1
-    gathering(category_name, height)
-    clusters = clustering(category_name, height)
-    images = imagesOf(clusters)
-    result = {"clusters":images}
-    result["category"]=category_name
+    if request.method == 'GET':
+        gathering(category_name, height)
+        clusters = clustering(category_name, height)
+        images = imagesOf(clusters)
+        result["clusters"]=images
+        result["category"]=category_name
+    if request.method == 'POST':
+        LOG.info("POST")
     return render_template('dragdrop.html', **result)
 
 def main():

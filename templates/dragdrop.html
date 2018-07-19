@@ -1,39 +1,45 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
- <meta charset="UTF-8">
+<meta charset="UTF-8">
 <title>Clustering artwork images</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
 <script type="text/javascript" src="../static/script.js"></script>
+<script type=text/javascript>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
 <link rel="stylesheet" href="../static/style.css"/>
 </head>
+
 <body>
 
 <h1>Clustering artwork images</h1>
 <input value={{category}} type="text" />
-<input type="submit" value="Go !"/>
+<input action="/" method="post" type="submit" id="go" value="Go !"/>
 
 
-
-<div class="cluster">
+<div class="cluster" tag="common">
 	<div class="dropHolder" id="commonImages" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Unclustered images</h2>
+		<input type=hidden id=hidden>
+		<img draggable="true" ondragstart="drag(event)" name="common" src="img/cluster1a.jpg">
 	</div>
 	<div class="wikidata">
 		<h2>Common properties</h2>
-		<textarea></textarea>
+		<input type=text size=200 name=common>
 	</div>
 </div>
 
 {% for cluster in clusters %}
-<div class="cluster">
+<div class="cluster" tag="{{ cluster.id }}">
 	<div class="wikidata">
 		<h2>Cluster properties</h2>
-		<textarea></textarea>
+		<input type=text size=200 name="{{ cluster.id }}">
 	</div>
-	<div class="dropHolder" ondrop="drop(event)" ondragover="allowDrop(event)">
+	<div class="dropHolder" id="{{ cluster.id }}" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Images</h2>
-		{% for image in cluster %}
-            <img draggable="true" ondragstart="drag(event)" id="img_{{ image.id }}" src={{ image.url }}>
+		{% for image in cluster.images %}
+            <img draggable="true" ondragstart="drag(event)" id="{{ image.id }}" src={{ image.url }}>
         {% endfor %}
 	</div>
 </div>
