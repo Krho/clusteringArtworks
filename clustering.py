@@ -295,19 +295,20 @@ def fusion_cat(images,qitem="", cat_name="", label_dict={}, descr_dict=descrDict
     claim.setTarget(title)
     item.addClaim(claim, summary="#FileToCat Commons claim")
 
-@app.route('/test')
-def test():
+@app.route('/update')
+def update():
     LOG.info("updating Wikimedia projects")
     data = request.args.get('data', 0, type=str)
+    LOG.info(data)
     d = ast.literal_eval(data)
     for cluster in d:
         if len(cluster["images"]) > 0:
             cluster["images"] = [idMap[img] for img in cluster["images"]]
             fusion_cat([page.Page(COMMONS, img) for img in cluster["images"]])
-    return render_template('dragdrop.html', **result)
+    return render_template('result.html', **result)
 
 
-@app.route('/load')
+@app.route('/load', methods=['GET', 'POST'])
 def show():
     height=1
     LOG.info("Loading")
@@ -319,21 +320,12 @@ def show():
         images = imagesOf(clusters)
         result["clusters"]=images
         result["category"]=category_name
+    LOG.info("Loaded")
     return render_template('dragdrop.html', **result)
 
 @app.route('/', methods=['GET', 'POST'])
 def basic():
-    height=1
-    LOG.info("Loading")
-    category_name = request.args.get('category', 0, type=str)
-    LOG.info(category_name)
-    if category_name:
-        gathering(category_name, height)
-        clusters = clustering(category_name, height)
-        images = imagesOf(clusters)
-        result["clusters"]=images
-        result["category"]=category_name
-    return render_template('dragdrop.html', **result)
+    return render_template('load.html', **result)
 
 def main():
     category_name = "Portrait paintings of women holding flower baskets"

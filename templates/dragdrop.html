@@ -6,18 +6,15 @@
 <title>Clustering artwork images</title>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
-<script type="text/javascript" src="../static/script.js"></script>
+<script type="text/javascript" src="../static/scriptDD.js"></script>
 <script type=text/javascript>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
 <link rel="stylesheet" href="../static/style.css"/>
 </head>
 
 <body>
 
-<h1>Clustering artwork images</h1>
-<input name="category" type="text" id="category" tag="category" />
-<input action="/load" method="POST" type="submit" id="load" name="load" value="Load"/>
-<input action="/" method="POST" type="submit" id="go" value="Go !"/>
-
+<h1>Clustering artwork images: {{category}}</h1>
+<input action="/update" method="post" type="submit" id="go" value="Go !"/>
 
 <div class="uncluster" tag="common">
 	<div class="dropHolder" id="commonImages" ondrop="drop(event)" ondragover="allowDrop(event)">

@@ -3,7 +3,8 @@ function allowDrop(ev) {
 }
 
 function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.id);
+  console.log("Draging")
+  ev.dataTransfer.setData("text", ev.target.id);
 }
 
 function drop(ev) {
@@ -45,22 +46,10 @@ function harvest(){
 $(function() {
     $('input#load').bind('click', function() {
       $.getJSON($SCRIPT_ROOT + '/load', {
-        // common: $('input[name="common"]').val(),
-        // hidden: $('input[name="hidden"]').val(),
         category: $('input[name="category"]').val()
-        // data: JSON.stringify(harvest())
       }, function(data) {
         $("#result").text(data.result);
       });
- /*   $('input#go').bind('click', function() {
-      $.getJSON($SCRIPT_ROOT + '/test', {
-        common: $('input[name="common"]').val(),
-        hidden: $('input[name="hidden"]').val(),
-        category: $('input[name="category"]').val()
-        data: JSON.stringify(harvest())
-      }, function(data) {
-        $("#result").text(data.result);
-      }); */
       return false;
     });
 });
