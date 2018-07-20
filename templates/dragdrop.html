@@ -14,8 +14,9 @@
 <body>
 
 <h1>Clustering artwork images</h1>
-<input value={{category}} type="text" />
-<input action="/" method="post" type="submit" id="go" value="Go !"/>
+<input name="category" type="text" id="category" tag="category" />
+<input action="/load" method="POST" type="submit" id="load" name="load" value="Load"/>
+<input action="/" method="POST" type="submit" id="go" value="Go !"/>
 
 
 <div class="uncluster" tag="common">

@@ -43,14 +43,24 @@ function harvest(){
 
 // Executed at the end of the load
 $(function() {
-    $('input#go').bind('click', function() {
-      $.getJSON($SCRIPT_ROOT + '/test', {
-        common: $('input[name="common"]').val(),
-        hidden: $('input[name="hidden"]').val(),
-        data: JSON.stringify(harvest())
+    $('input#load').bind('click', function() {
+      $.getJSON($SCRIPT_ROOT + '/load', {
+        // common: $('input[name="common"]').val(),
+        // hidden: $('input[name="hidden"]').val(),
+        category: $('input[name="category"]').val()
+        // data: JSON.stringify(harvest())
       }, function(data) {
         $("#result").text(data.result);
       });
+ /*   $('input#go').bind('click', function() {
+      $.getJSON($SCRIPT_ROOT + '/test', {
+        common: $('input[name="common"]').val(),
+        hidden: $('input[name="hidden"]').val(),
+        category: $('input[name="category"]').val()
+        data: JSON.stringify(harvest())
+      }, function(data) {
+        $("#result").text(data.result);
+      }); */
       return false;
     });
 });

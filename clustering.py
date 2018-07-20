@@ -297,29 +297,42 @@ def fusion_cat(images,qitem="", cat_name="", label_dict={}, descr_dict=descrDict
 
 @app.route('/test')
 def test():
-    LOG.info("test")
+    LOG.info("updating Wikimedia projects")
     data = request.args.get('data', 0, type=str)
-    LOG.info(data)
     d = ast.literal_eval(data)
-    LOG.info(idMap)
     for cluster in d:
         if len(cluster["images"]) > 0:
             cluster["images"] = [idMap[img] for img in cluster["images"]]
             fusion_cat([page.Page(COMMONS, img) for img in cluster["images"]])
     return render_template('dragdrop.html', **result)
 
-@app.route('/', methods=['GET', 'POST'])
+
+@app.route('/load')
 def show():
-    category_name = "Portrait_paintings_of_women_holding_flower_baskets"
     height=1
-    if request.method == 'GET':
+    LOG.info("Loading")
+    category_name = request.args['category']
+    LOG.info(category_name)
+    if category_name:
         gathering(category_name, height)
         clusters = clustering(category_name, height)
         images = imagesOf(clusters)
         result["clusters"]=images
         result["category"]=category_name
-    if request.method == 'POST':
-        LOG.info("POST")
+    return render_template('dragdrop.html', **result)
+
+@app.route('/', methods=['GET', 'POST'])
+def basic():
+    height=1
+    LOG.info("Loading")
+    category_name = request.args.get('category', 0, type=str)
+    LOG.info(category_name)
+    if category_name:
+        gathering(category_name, height)
+        clusters = clustering(category_name, height)
+        images = imagesOf(clusters)
+        result["clusters"]=images
+        result["category"]=category_name
     return render_template('dragdrop.html', **result)
 
 def main():
