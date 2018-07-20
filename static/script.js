@@ -13,14 +13,11 @@ function drop(ev) {
     //Clean-up
     elements = document.getElementsByName(img.id)
     for (const element of elements){
-    	element.setAttribute("value", "")
     	element.setAttribute("name", "")
     }
     //Target
     ev.target.appendChild(img);
-    hidden = document.getElementById("hidden")
-    hidden.setAttribute("value", ev.target.id)
-    hidden.setAttribute("name", ev.target.id)
+    img.setAttribute("name", ev.target.id)
 }
 
 function harvest(){
@@ -35,7 +32,7 @@ function harvest(){
 			if (element.type === "text"){
 				elementData["text"]=element.value
 			} else {
-				elementData["images"].push(element.getAttribute("src"))
+				elementData["images"].push(element.getAttribute("id"))
 			}
 		}
 		result.push(elementData)

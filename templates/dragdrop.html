@@ -18,11 +18,10 @@
 <input action="/" method="post" type="submit" id="go" value="Go !"/>
 
 
-<div class="cluster" tag="common">
+<div class="uncluster" tag="common">
 	<div class="dropHolder" id="commonImages" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Unclustered images</h2>
 		<input type=hidden id=hidden>
-		<img draggable="true" ondragstart="drag(event)" name="common" src="img/cluster1a.jpg">
 	</div>
 	<div class="wikidata">
 		<h2>Common properties</h2>
@@ -39,7 +38,7 @@
 	<div class="dropHolder" id="{{ cluster.id }}" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Images</h2>
 		{% for image in cluster.images %}
-            <img draggable="true" ondragstart="drag(event)" id="{{ image.id }}" src={{ image.url }}>
+            <img draggable="true" ondragstart="drag(event)" id="{{ image.id }}" name="{{ cluster.id }}" src={{ image.url }}>
         {% endfor %}
 	</div>
 </div>

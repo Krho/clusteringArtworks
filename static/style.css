@@ -12,6 +12,16 @@ body {
 	content: <hr>;
 }
 
+.uncluster {
+	display: flex;                   
+	align-items: flex-start;         
+	justify-content: space-between;
+}
+
+.uncluster:after {
+	content: <hr>;
+}
+
 .dropHolder {
     height: 190px;
     width: 69%;
