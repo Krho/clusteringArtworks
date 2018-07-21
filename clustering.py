@@ -45,11 +45,11 @@ repo = wikidata.data_repository()
 IMAGE_HEIGHT = 120
 
 categories_tree = json.loads(open("categories1.json").read())
-# commons = mwclient.Site('commons.wikimedia.org')
 
 idMap = {}
 result = {}
 descrDict = {"fr":u"Peinture","en":u"Painting"}
+#remainings=[]
 
 blackList=[u"Category:Rituels grecs – Une expérience sensible",u"Category:Details of paintings by Georges de La Tour"]
 
@@ -110,6 +110,7 @@ def categories(p, height=0):
 def gathering(category_name, height):
     category_set = set([])
     files = page.Category(COMMONS, category_name).members(namespaces=FILE_NAMESPACE)
+#    remainings = [f.title() for f in files]
     LOG.info(u"Examining %s", category_name)
     for file in files:
         LOG.info(u'gathering %s', file.title())
@@ -229,6 +230,7 @@ def imagesOf(clusters):
         idMap[uid]=i
         idMap[i]=uid
         result.append({'id':uid,'images':[imageOf(fileName) for fileName in cluster]})
+#        remainings = [s for s in remainings if s not in cluster]
     return result
 
 def hidden(category):
@@ -320,6 +322,8 @@ def show():
         images = imagesOf(clusters)
         result["clusters"]=images
         result["category"]=category_name
+#        result["remainings"]=remainings
+        LOG.info(result)
     LOG.info("Loaded")
     return render_template('dragdrop.html', **result)
 

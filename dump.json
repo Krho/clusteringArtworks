@@ -1,4 +1,17 @@
 {
+  "Portrait paintings by François-Hubert Drouais (House of Bourbon)":{
+      "Properties":{
+        "P31": {
+          "Value":"Q3305213"
+        },
+        "P170": {
+          "Value":"Q946487"
+        },
+        "P136":{
+          "Value":"Q134307"
+        }
+      }
+    },
   "Paintings by Aelbert Cuyp in the Museum of Fine Arts, Ghent": {
     "Properties": {
       "P276": {
