@@ -49,9 +49,7 @@ categories_tree = json.loads(open("categories1.json").read())
 idMap = {}
 result = {}
 descrDict = {"fr":u"Peinture","en":u"Painting"}
-#remainings=[]
-
-blackList=[u"Category:Rituels grecs – Une expérience sensible",u"Category:Details of paintings by Georges de La Tour"]
+allImages = []
 
 def clean_image(image, title, removeList):
     t = image.text
@@ -80,7 +78,7 @@ def creators_of(category_name):
         item = creator_of(subcat)
         if item is not None:
             dict_creator[subcat.title()]={
-            "Properties":{"P170":{"Value":item.title()}},
+            u"Properties":{"P170":{"Value":item.title()}},
             "Parents":[category_name]}
         else:
             missing.append(subcat.title())
@@ -88,12 +86,6 @@ def creators_of(category_name):
         json.dump(dict_creator, data, indent=2, ensure_ascii=False)
     with open ("missing.json", "w") as data:
         json.dump({"Missing":missing},data, indent=2, ensure_ascii=False)
-
-def item_of(category_name):
-    category = pywikibot.Category(commons, category_name)
-
-def item_of(file):
-    result = []
 
 def categories(p, height=0):
     if p not in categories_tree or "Parents" not in categories_tree[p]:
@@ -109,8 +101,8 @@ def categories(p, height=0):
 
 def gathering(category_name, height):
     category_set = set([])
-    files = page.Category(COMMONS, category_name).members(namespaces=FILE_NAMESPACE)
-#    remainings = [f.title() for f in files]
+    files = [f for f in page.Category(COMMONS, category_name).members(namespaces=FILE_NAMESPACE)]
+    allImages = [f.title() for f in files]
     LOG.info(u"Examining %s", category_name)
     for file in files:
         LOG.info(u'gathering %s', file.title())
@@ -137,6 +129,7 @@ def gathering(category_name, height):
     LOG.info(u"Storing datapoints")
     file = io.open(category_name+"-"+str(height)+".txt", mode="w", encoding="utf-8")
     file.write(u"".join(stringBuffer))
+    return allImages
 
 def label(item):
     title=""
@@ -223,35 +216,32 @@ def imageOf(fileName):
     idMap[fileName]=uid
     return {'url':file.get_file_url(url_height=IMAGE_HEIGHT),'id':uid}
 
-def imagesOf(clusters):
+def imagesOf(clusters, allImages):
     result = []
     for i,cluster in enumerate(clusters):
         uid = str(uuid.uuid4())
         idMap[uid]=i
         idMap[i]=uid
         result.append({'id':uid,'images':[imageOf(fileName) for fileName in cluster]})
-#        remainings = [s for s in remainings if s not in cluster]
-    return result
+        allImages = [img for img in allImages if img not in cluster]
+    return result, allImages
 
 def hidden(category):
     return "Category:Hidden categories" in [c.title() for c in category.categories()]
 
 def fusion_cat(images,qitem="", cat_name="", label_dict={}, descr_dict=descrDict, objectCat=True, createCat=True):
-    categories=[]
+    categories=set([])
     img = None
     item = None
     for image in images:
         img = image.title()[5:]
         for cat in image.categories():
             if createCat:
-                if cat.title() not in blackList and not hidden(cat):
-                    categories.append(cat.title())
-                    blackList.append(cat.title())
+                if not hidden(cat):
+                    categories.add(cat.title())
             elif not hidden(cat):
                 for parent in cat.categories():
-                    if parent not in blackList:
-                        categories.append(parent.title())
-                        blackList.append(parent.title())
+                        categories.add(parent.title())
     if qitem is not "":
         item = pywikibot.ItemPage(repo,qitem)
         item.get()
@@ -262,30 +252,27 @@ def fusion_cat(images,qitem="", cat_name="", label_dict={}, descr_dict=descrDict
         item.get()
     for cat in categories:
         if cat in cache:
-            for p in cache[cat]["Properties"]:
-                if p not in item.claims or p in duplicates:
+            LOG.info("Finding information for Wikidata from "+cat)
+            for p in cache[cat][u"Properties"]:
+                LOG.info("Examining property "+p)
+                if p not in item.claims:
                     claim = pywikibot.Claim(repo, p)
-                    if "Value" in cache[cat]["Properties"][p]:
-                        if "Q" in cache[cat]["Properties"][p]["Value"]:
-                            claim.setTarget(pywikibot.ItemPage(repo,cache[cat]["Properties"][p]["Value"]))
+                    if u"Value" in cache[cat][u"Properties"][p]:
+                        LOG.info("Adding value "+cache[cat][u"Properties"][p]["Value"])
+                        if "Q" in cache[cat][u"Properties"][p]["Value"]:
+                            claim.setTarget(pywikibot.ItemPage(repo,cache[cat][u"Properties"][p]["Value"]))
                         else:
-                            claim.setTarget(pywikibot.WbTime(year=cache[cat]["Properties"][p]["Value"]["Year"]))
+                            claim.setTarget(pywikibot.WbTime(year=cache[cat][u"Properties"][p]["Value"]["Year"]))
                         item.addClaim(claim, summary=u'#Commons2Data adding claim')
-                    else:
-                        print (cat)
-                        print (p)
-        else:
-            print (cat)
     title = cat_name
     if title is "":
         title = label(item)
     if title is "":
         title = re.split("\.|:",images[0].title())[1]
     if createCat:
-        print_category(item.title(), title, categories,objectCat)
-        categories.append(blackList[-1])
+        print_category(item.title(), title, [c for c in categories],objectCat)
         for image in images:
-            clean_image(image, title, categories)
+            clean_image(image, title, [c for c in categories])
     # Wikidata
     if imageProperty not in item.claims:
         claim = pywikibot.Claim(repo, imageProperty)
@@ -304,7 +291,7 @@ def update():
     LOG.info(data)
     d = ast.literal_eval(data)
     for cluster in d:
-        if len(cluster["images"]) > 0:
+        if cluster["id"] is not "unclustered" and len(cluster["images"]) > 0:
             cluster["images"] = [idMap[img] for img in cluster["images"]]
             fusion_cat([page.Page(COMMONS, img) for img in cluster["images"]])
     return render_template('result.html', **result)
@@ -314,15 +301,19 @@ def update():
 def show():
     height=1
     LOG.info("Loading")
-    category_name = request.args['category']
-    LOG.info(category_name)
-    if category_name:
-        gathering(category_name, height)
-        clusters = clustering(category_name, height)
-        images = imagesOf(clusters)
+    categoryName = request.args['category']
+    LOG.info(categoryName)
+    if categoryName:
+        allImages = gathering(categoryName, height)
+        clusters = clustering(categoryName, height)
+        images, remainings = imagesOf(clusters, allImages)
+        LOG.info(images)
+        LOG.info(remainings)
         result["clusters"]=images
-        result["category"]=category_name
-#        result["remainings"]=remainings
+        result["category"]=categoryName
+        if categoryName in cache:
+            result["common"]=categoryName
+        result["remainings"]={'id':"unclustered",'images':[imageOf(fileName) for fileName in remainings]}
         LOG.info(result)
     LOG.info("Loaded")
     return render_template('dragdrop.html', **result)

@@ -19,13 +19,13 @@
 <div class="uncluster" tag="common">
 	<div class="dropHolder" id="commonImages" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Unclustered images</h2>
-		{% for image in remainings %}
-            <img draggable="true" ondragstart="drag(event)" id="{{ image.id }}" name="{{ cluster.id }}" src={{ image.url }}>
+		{% for image in remainings.images %}
+            <img draggable="true" ondragstart="drag(event)" id="{{ image.id }}" name="{{ remainings.id }}" src={{ image.url }}>
         {% endfor %}
 	</div>
 	<div class="wikidata">
 		<h2>Common properties</h2>
-		<input type=text size=80 name=common>
+		<textarea name"=common">{{ common }}</textarea>
 	</div>
 </div>
 
@@ -33,7 +33,7 @@
 <div class="cluster" tag="{{ cluster.id }}">
 	<div class="wikidata">
 		<h2>Cluster properties</h2>
-		<input type=text size=80 name="{{ cluster.id }}">
+		<input type=text size=40 name="{{ cluster.id }}">
 	</div>
 	<div class="dropHolder" id="{{ cluster.id }}" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Images</h2>

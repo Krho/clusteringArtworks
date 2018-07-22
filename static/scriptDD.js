@@ -45,8 +45,6 @@ function harvest(){
 $(function() {
     $('input#go').bind('click', function() {
       $.getJSON($SCRIPT_ROOT + '/update', {
-        common: $('input[name="common"]').val(),
-        hidden: $('input[name="hidden"]').val(),
         data: JSON.stringify(harvest())
       }, function(data) {
         $("#result").text(data.result);
