@@ -252,7 +252,6 @@ def fusion_cat(images,qitem="", cat_name="", label_dict={}, descr_dict=descrDict
         item.get()
     for cat in categories:
         if cat in cache:
-            LOG.info("Finding information for Wikidata from "+cat)
             for p in cache[cat][u"Properties"]:
                 LOG.info("Examining property "+p)
                 if p not in item.claims:
@@ -288,7 +287,6 @@ def fusion_cat(images,qitem="", cat_name="", label_dict={}, descr_dict=descrDict
 def update():
     LOG.info("updating Wikimedia projects")
     data = request.args.get('data', 0, type=str)
-    LOG.info(data)
     d = ast.literal_eval(data)
     for cluster in d:
         if cluster["id"] is not "unclustered" and len(cluster["images"]) > 0:
@@ -307,8 +305,6 @@ def show():
         allImages = gathering(categoryName, height)
         clusters = clustering(categoryName, height)
         images, remainings = imagesOf(clusters, allImages)
-        LOG.info(images)
-        LOG.info(remainings)
         result["clusters"]=images
         result["category"]=categoryName
         if categoryName in cache:

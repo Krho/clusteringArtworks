@@ -16,24 +16,27 @@
 <h1>Clustering artwork images: {{category}}</h1>
 <input action="/update" method="post" type="submit" id="go" value="Go !"/>
 
-<div class="uncluster" tag="common">
+<aside class="uncluster" tag="common">
+	<div class="wikidata">
+		<h2>Common properties</h2>
+		<textarea name"=common">{{ common }}</textarea>
+	</div>
 	<div class="dropHolder" id="commonImages" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Unclustered images</h2>
 		{% for image in remainings.images %}
             <img draggable="true" ondragstart="drag(event)" id="{{ image.id }}" name="{{ remainings.id }}" src={{ image.url }}>
         {% endfor %}
 	</div>
-	<div class="wikidata">
-		<h2>Common properties</h2>
-		<textarea name"=common">{{ common }}</textarea>
-	</div>
-</div>
+</aside>
 
 {% for cluster in clusters %}
+<!--
+<button onclick="myFunction({{ cluster.id }})">Show/Hide</button>
+-->
 <div class="cluster" tag="{{ cluster.id }}">
 	<div class="wikidata">
 		<h2>Cluster properties</h2>
-		<input type=text size=40 name="{{ cluster.id }}">
+		<textarea type=text size=40 name="{{ cluster.id }}"></textarea>
 	</div>
 	<div class="dropHolder" id="{{ cluster.id }}" ondrop="drop(event)" ondragover="allowDrop(event)">
 		<h2>Images</h2>

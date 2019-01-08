@@ -13,17 +13,14 @@ body {
 }
 
 .uncluster {
-	display: flex;                   
-	align-items: flex-start;         
-	justify-content: space-between;
-}
-
-.uncluster:after {
-	content: <hr>;
+	float:right;
+	width:40%;
+	overflow-y:auto;
+	height:1600px;
 }
 
 .dropHolder {
-    height: 190px;
+    height: 200px;
     width: 69%;
 }
 .wikidata {
